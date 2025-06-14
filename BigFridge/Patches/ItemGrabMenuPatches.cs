@@ -16,7 +16,7 @@ namespace BigFridge.Patches
             return true;
         }
 
-        internal static void setSourceItemPostfix(ItemGrabMenu __instance, Item item)
+        internal static void setSourceItemPostfix(ItemGrabMenu __instance)
         {
             if (__instance.sourceItem is not Chest fridge || fridge.QualifiedItemId != "(BC)AlanBF.BigFridge") return;
 

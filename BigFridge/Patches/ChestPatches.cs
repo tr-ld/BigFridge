@@ -41,7 +41,7 @@ namespace BigFridge.Patches
                         return false;
                     }
                 }
-                
+
                 return true;
             }
             catch (Exception ex)
@@ -57,14 +57,12 @@ namespace BigFridge.Patches
 
             try
             {
-
                 if(__instance.SpecialChestType == (Chest.SpecialChestTypes)9) {
                     __instance.SpecialChestType = Chest.SpecialChestTypes.None;
-                    Monitor.Log($"Chest Type Restored", LogLevel.Info);
+                    Monitor.Log("Chest Type Restored", LogLevel.Info);
                 }
 
                 return true;
-                
             }
             catch (Exception ex)
             {
@@ -133,14 +131,25 @@ namespace BigFridge.Patches
         internal static bool drawLocalPrefix(Chest __instance, SpriteBatch spriteBatch, int x, int y, float alpha, bool local)
         {
             if (!__instance.playerChest.Value || (__instance.QualifiedItemId != "(BC)AlanBF.BigFridge" && __instance.QualifiedItemId != "(BC)216")) return true;
-            
+
             try
             {
                 if (__instance.playerChoiceColor.Equals(Color.Black))
                 {
                     ParsedItemData dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(__instance.QualifiedItemId);
                     //Base
-                    spriteBatch.Draw(dataOrErrorItem.GetTexture(), local ? new Vector2(x, y - 64) : Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)), dataOrErrorItem.GetSourceRect(0,0), __instance.Tint * alpha, 0f, Vector2.Zero, 4f, SpriteEffects.None, local ? 0.89f : ((float)(y * 64 + 4) / 10000f));
+                    Vector2 position;
+
+                    if (local)
+                    {
+                        position = new Vector2(x, y -64);
+                    } else
+                    {
+                        position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64));
+                    }
+
+                    spriteBatch.Draw(dataOrErrorItem.GetTexture(), position, dataOrErrorItem.GetSourceRect(0, 0), __instance.Tint * alpha, 0f, Vector2.Zero, 4f, SpriteEffects.None, local ? 0.89f : ((float)(y * 64 + 4) / 10000f));
+
                     return false;
                 }
 
@@ -153,9 +162,19 @@ namespace BigFridge.Patches
 
                 Texture2D texture = data.GetTexture();
 
+                Vector2 position2;
+
+                if (local)
+                {
+                    position2 = new Vector2(x, y - 64);
+                } else
+                {
+                    position2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y - 1) * 64 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)));
+                }
+
                 //Base, PostIt
-                spriteBatch.Draw(texture, local ? new Vector2(x, y - 64) : Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y - 1) * 64 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0))), sourceRect, __instance.playerChoiceColor.Value * alpha, 0f, Vector2.Zero, 4f, SpriteEffects.None, local ? 0.9f : ((float)(y * 64 + 4) / 10000f));
-                spriteBatch.Draw(texture, local ? new Vector2(x, y - 64) : Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y - 1) * 64 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0))), sourceRect2, Color.White * alpha, 0f, Vector2.Zero, 4f, SpriteEffects.None, local ? 0.89f : ((float)(y * 64 + 4) / 10000f));
+                spriteBatch.Draw(texture, position2, sourceRect, __instance.playerChoiceColor.Value * alpha, 0f, Vector2.Zero, 4f, SpriteEffects.None, local ? 0.9f : ((float)(y * 64 + 4) / 10000f));
+                spriteBatch.Draw(texture, position2, sourceRect2, Color.White * alpha, 0f, Vector2.Zero, 4f, SpriteEffects.None, local ? 0.89f : ((float)(y * 64 + 4) / 10000f));
                 return false;
             }
             catch (Exception ex)
@@ -169,7 +188,16 @@ namespace BigFridge.Patches
         {
             try
             {
-                if (dropInItem == null || dropInItem.QualifiedItemId != "(BC)AlanBF.BigFridge" || __instance.QualifiedItemId != "(BC)216" || __instance.Location == null || probe) { return true; }
+                if (dropInItem == null || dropInItem.QualifiedItemId != "(BC)AlanBF.BigFridge" || __instance.QualifiedItemId != "(BC)216" || __instance.Location == null)
+                {
+                    return true;
+                }
+
+                if (probe)
+                {
+                    __result = true;
+                    return false;
+                }
 
                 if (__instance.GetMutex().IsLocked())
                 {

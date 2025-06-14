@@ -6,7 +6,7 @@ namespace BigFridge
     /// <summary>Extension methods stolen from SkillPrestige</summary>
     public static class Extensions
     {
-        internal static IMonitor LogMonitor = ModEntry.LogMonitor;
+        internal static readonly IMonitor LogMonitor = ModEntry.LogMonitor;
         /*********
         ** Public methods
         *********/
